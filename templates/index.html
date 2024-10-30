@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kidney Disease Prediction Chatbot</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+    <!-- Adding Font Awesome for the medical icon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/styles/index.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chronic Kidney Disease Prediction Chatbot</h1>
+            <div class="disclaimer">
+                <strong>Important:</strong> While this chatbot can be a valuable tool, it should never replace the expertise and judgment of healthcare professionals.
+            </div>
+            <a href="/health-form" class="health-form-link">Enter Health Details</a>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                Chat with our Medical Assistant
+            </div>
+            <div id="messages">
+                <!-- Messages will be inserted here -->
+            </div>
+            <div class="input-container">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Type your message here..." 
+                    aria-label="Message input"
+                >
+                <button id="send" aria-label="Send message">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/scripts/index.js"></script>
+</body>
+</html>
+
