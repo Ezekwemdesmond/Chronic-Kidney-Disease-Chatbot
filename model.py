@@ -1,78 +1,139 @@
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.model_selection import train_test_split
+# Sklearn packages for machine learning in python
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_selection import RFE, SelectKBest, chi2
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.impute import KNNImputer
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-import warnings
-warnings.filterwarnings('ignore')
+
 
 # Load the dataset
 file_path = './data/kidney_disease.csv'
-df = pd.read_csv(file_path)
+ckd_dataset = pd.read_csv(file_path)
 
-# Drop 'id' column if it exists
-if 'id' in df.columns:
-    df.drop(columns=['id'], inplace=True)
+# Drop the id column
+ckd_dataset.drop(columns='id', inplace=True)
 
-# Rename columns for consistency
-df.columns = ['age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar', 'red_blood_cells', 'pus_cell',
+# Rename the column names to more descriptive names
+ckd_dataset.columns = ['age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar', 'red_blood_cells', 'pus_cell',
               'pus_cell_clumps', 'bacteria', 'blood_glucose_random', 'blood_urea', 'serum_creatinine', 'sodium',
               'potassium', 'haemoglobin', 'packed_cell_volume', 'white_blood_cell_count', 'red_blood_cell_count',
               'hypertension', 'diabetes_mellitus', 'coronary_artery_disease', 'appetite', 'peda_edema',
-              'aanemia', 'class']
+              'anaemia', 'class']
 
 # Convert necessary columns to numerical type
-df['packed_cell_volume'] = pd.to_numeric(df['packed_cell_volume'], errors='coerce')
-df['white_blood_cell_count'] = pd.to_numeric(df['white_blood_cell_count'], errors='coerce')
-df['red_blood_cell_count'] = pd.to_numeric(df['red_blood_cell_count'], errors='coerce')
+ckd_dataset['packed_cell_volume'] = pd.to_numeric(ckd_dataset['packed_cell_volume'], errors='coerce')
+ckd_dataset['white_blood_cell_count'] = pd.to_numeric(ckd_dataset['white_blood_cell_count'], errors='coerce')
+ckd_dataset['red_blood_cell_count'] = pd.to_numeric(ckd_dataset['red_blood_cell_count'], errors='coerce')
 
-# Handle inconsistencies in categorical data
-df['diabetes_mellitus'].replace(to_replace={'\tno': 'no', '\tyes': 'yes', ' yes': 'yes'}, inplace=True)
-df['coronary_artery_disease'] = df['coronary_artery_disease'].replace(to_replace='\tno', value='no')
-df['class'] = df['class'].replace(to_replace={'ckd\t': 'ckd', 'notckd': 'not ckd'})
-df['class'] = df['class'].map({'ckd': 0, 'not ckd': 1})
-df['class'] = pd.to_numeric(df['class'], errors='coerce')
+# Remove leading/trailing whitespace in the categorical columns
+ckd_dataset['diabetes_mellitus'] = ckd_dataset['diabetes_mellitus'].str.strip()
+ckd_dataset['coronary_artery_disease'] = ckd_dataset['coronary_artery_disease'].str.strip()
+ckd_dataset['class'] = ckd_dataset['class'].str.strip()
 
-# Fill missing values using appropriate methods
-def random_value_imputation(feature):
-    random_sample = df[feature].dropna().sample(df[feature].isna().sum())
-    random_sample.index = df[df[feature].isnull()].index
-    df.loc[df[feature].isnull(), feature] = random_sample
+ckd_dataset['class'] = ckd_dataset['class'].map({'ckd': 1, 'notckd': 0})
+ckd_dataset['class'] = pd.to_numeric(ckd_dataset['class'])
+
+def handling_missing_values(df):
+    """
+    Comprehensive missing data handling pipeline for the CKD dataset.
     
-def impute_mode(feature):
-    mode = df[feature].mode()[0]
-    df[feature] = df[feature].fillna(mode)
+    Parameters:
+    df (pandas.DataFrame): Raw CKD dataset
+    
+    Returns:
+    pandas.DataFrame: clean dataset
+   
+    """
+    # Create a copy to avoid modifying the original data
+    data = df.copy()
+    
+    # Step 1: Separate numerical and categorical columns
+    numerical_cols = ['age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar',
+                     'blood_glucose_random', 'blood_urea', 'serum_creatinine', 'sodium',
+                     'potassium', 'haemoglobin', 'packed_cell_volume',
+                     'white_blood_cell_count', 'red_blood_cell_count']
+    
+    categorical_cols = ['red_blood_cells', 'pus_cell', 'pus_cell_clumps', 'bacteria',
+                       'hypertension', 'diabetes_mellitus', 'coronary_artery_disease',
+                       'appetite', 'peda_edema', 'anaemia']
+    
+    # Step 2: Handle categorical variables first
+    for col in categorical_cols:
+        # Fill with mode for categorical columns
+        mode_value = data[col].mode()[0]
+        data[col] = data[col].fillna(mode_value)
+    
+    # Step 3: Prepare numerical data for KNN imputation
+    numerical_data = data[numerical_cols].copy()
+    
+    # Step 4: Scale the data before KNN imputation
+    scaler = StandardScaler()
+    numerical_data_scaled = pd.DataFrame(
+        scaler.fit_transform(numerical_data),
+        columns=numerical_data.columns)
+    
+    # Step 5: Perform KNN imputation on scaled numerical data
+    imputer = KNNImputer(n_neighbors=5, weights='distance')
+    numerical_data_imputed = pd.DataFrame(
+        imputer.fit_transform(numerical_data_scaled),
+        columns=numerical_data.columns)
+    
+    # Step 6: Inverse transform the scaled data
+    numerical_data_final = pd.DataFrame(
+        scaler.inverse_transform(numerical_data_imputed),
+        columns=numerical_data.columns)
+    
+    # Step 7: Replace the original numerical columns with imputed values
+    for col in numerical_cols:
+        data[col] = numerical_data_final[col]
+        
+    return data
 
-# Fill numerical columns using random sampling
-num_cols = [col for col in df.columns if df[col].dtype != 'object']
-for col in num_cols:
-    random_value_imputation(col)
+# Apply the cleaning to the dataset
+clean_ckd_data = handling_missing_values(ckd_dataset)
 
-# Fill categorical columns using mode
-cat_cols = [col for col in df.columns if df[col].dtype == 'object']
-random_value_imputation('red_blood_cells')
-random_value_imputation('pus_cell')
-for col in cat_cols:
-    impute_mode(col)
+# Function to replace 'notpresent' with 'absent
+def replace_value(values):
+    return np.where(values == 'notpresent', 'absent', values)
 
-# Encode categorical variables
-categorical_columns = ['red_blood_cells', 'pus_cell', 'pus_cell_clumps', 'bacteria', 'hypertension', 
-                       'diabetes_mellitus', 'coronary_artery_disease', 'appetite', 'peda_edema', 'aanemia']
+# Get the categorical columns
+categorical_cols = [col for col in clean_ckd_data.columns if clean_ckd_data[col].dtype == 'object']
+# Apply the function to all columns
+clean_ckd_data[categorical_cols] = clean_ckd_data[categorical_cols].apply(replace_value)
 
+# Encode the categorical columns
 # Initialize LabelEncoders for each categorical column
-encoders = {col: LabelEncoder() for col in categorical_columns}
-for col in categorical_columns:
-    df[col] = encoders[col].fit_transform(df[col])
+encoders = {col: LabelEncoder() for col in categorical_cols}
+for col in categorical_cols:
+    clean_ckd_data[col] = encoders[col].fit_transform(clean_ckd_data[col])
 
+import joblib   
 # Save the encoders for later use during prediction
 joblib.dump(encoders, './data/encoders.pkl')
 
 # Separate features and target
-X = df.drop(columns=['class'])
-y = df['class']
+X = clean_ckd_data.drop(columns=['class'])
+y = clean_ckd_data['class']
+
+# Cross Validation with Random Forest
+# Initialize the Random Forest Classifier
+rf_model = RandomForestClassifier(random_state=42, n_estimators=100)
+
+# StratifiedKFold for maintaining class distribution across folds which is especially important for imbalanced datasets 
+cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+
+# Perform cross-validation
+cv_scores = cross_val_score(rf_model, X, y, cv=cv, scoring='accuracy')
+
+# Results
+print(f"Cross-validation accuracy scores: {cv_scores}")
+print(f"Mean cross-validation accuracy: {np.mean(cv_scores):.2f}")
+print(f"Standard deviation of accuracy: {np.std(cv_scores):.2f}")
 
 # Split data into training and test set
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
@@ -100,16 +161,15 @@ def preprocess_input(input_data):
     encoders = joblib.load('./data/encoders.pkl')
 
     # Create DataFrame from input data with all expected columns
-    expected_columns = [
-        'age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar', 'red_blood_cells', 'pus_cell',
-        'pus_cell_clumps', 'bacteria', 'blood_glucose_random', 'blood_urea', 'serum_creatinine', 'sodium',
-        'potassium', 'haemoglobin', 'packed_cell_volume', 'white_blood_cell_count', 'red_blood_cell_count',
-        'hypertension', 'diabetes_mellitus', 'coronary_artery_disease', 'appetite', 'peda_edema', 'aanemia'
-    ]
+    expected_columns = ['age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar', 'red_blood_cells', 'pus_cell',
+              'pus_cell_clumps', 'bacteria', 'blood_glucose_random', 'blood_urea', 'serum_creatinine', 'sodium',
+              'potassium', 'haemoglobin', 'packed_cell_volume', 'white_blood_cell_count', 'red_blood_cell_count',
+              'hypertension', 'diabetes_mellitus', 'coronary_artery_disease', 'appetite', 'peda_edema',
+              'anaemia']
     input_df = pd.DataFrame([input_data], columns=expected_columns)
 
     # Encode categorical columns
-    for col in categorical_columns:
+    for col in categorical_cols:
         if col in input_df.columns:
             if col in encoders:
                 input_df[col] = encoders[col].transform([input_df[col][0]])

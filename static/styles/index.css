@@ -73,8 +73,18 @@ h1 {
     color: white;
     padding: 1rem;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
+.header-bot-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #dbeeff;
+    
+}
 #messages {
     height: 400px;
     overflow-y: auto;
@@ -107,8 +117,14 @@ h1 {
 }
 
 .bot-icon {
-    color: var(--primary-blue);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    background-color: #dbeeff;
 }
+
 
 .message-content {
     margin-top: 0.5rem;
@@ -130,6 +146,20 @@ h1 {
     font-size: 1rem;
 }
 
+.message-timestamp {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 0.25rem;
+    text-align: right;
+}
+
+.user-message .message-timestamp {
+    text-align: right;
+}
+
+.bot-message .message-timestamp {
+    text-align: left;
+}
 #user-input:focus {
     outline: none;
     border-color: var(--primary-blue);
