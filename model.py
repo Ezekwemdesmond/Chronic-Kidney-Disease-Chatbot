@@ -130,27 +130,28 @@ cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 # Perform cross-validation
 cv_scores = cross_val_score(rf_model, X, y, cv=cv, scoring='accuracy')
 
-# Results
-print(f"Cross-validation accuracy scores: {cv_scores}")
-print(f"Mean cross-validation accuracy: {np.mean(cv_scores):.2f}")
-print(f"Standard deviation of accuracy: {np.std(cv_scores):.2f}")
+# Top 15 features from feature selection techniques
+top_features = ['hypertension','red_blood_cell_count','specific_gravity','appetite','blood_glucose_random','blood_urea',
+               'diabetes_mellitus','haemoglobin','albumin','packed_cell_volume','sodium',
+               'blood_pressure','peda_edema','serum_creatinine','sugar']
+
+# Separate features and target
+X = clean_ckd_data[top_features]
+y = clean_ckd_data['class']
 
 # Split data into training and test set
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-# Train Random Forest model
-model = RandomForestClassifier(random_state=42)
-model.fit(X_train, y_train)
-
-# Print evaluation metrics
-model_acc = accuracy_score(y_test, model.predict(X_test))
-print(f"Training Accuracy of Random Forest Classifier is {accuracy_score(y_train, model.predict(X_train))}")
-print(f"Test Accuracy of Random Forest Classifier is {model_acc}\n")
-print(f"Confusion Matrix:\n{confusion_matrix(y_test, model.predict(X_test))}\n")
-print(f"Classification Report:\n{classification_report(y_test, model.predict(X_test))}")
+# Train Random Forest with best parameters
+best_params = {'max_depth': None, 'max_features': 'sqrt', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 50}
+RF_tuned = RandomForestClassifier(**best_params, random_state=42)
+RF_tuned.fit(X_train, y_train)
+    
+# Predictions and evaluation
+y_pred = RF_tuned.predict(X_test)
 
 # Save the trained model
-joblib.dump(model, './data/kidney_disease_rf_model.pkl')
+joblib.dump(RF_tuned, './data/kidney_disease_rf_model.pkl')
 
 # Define preprocessing for prediction
 def preprocess_input(input_data):
@@ -161,11 +162,8 @@ def preprocess_input(input_data):
     encoders = joblib.load('./data/encoders.pkl')
 
     # Create DataFrame from input data with all expected columns
-    expected_columns = ['age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar', 'red_blood_cells', 'pus_cell',
-              'pus_cell_clumps', 'bacteria', 'blood_glucose_random', 'blood_urea', 'serum_creatinine', 'sodium',
-              'potassium', 'haemoglobin', 'packed_cell_volume', 'white_blood_cell_count', 'red_blood_cell_count',
-              'hypertension', 'diabetes_mellitus', 'coronary_artery_disease', 'appetite', 'peda_edema',
-              'anaemia']
+    expected_columns = top_features
+    
     input_df = pd.DataFrame([input_data], columns=expected_columns)
 
     # Encode categorical columns

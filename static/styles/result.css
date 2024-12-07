@@ -17,10 +17,10 @@ body {
     line-height: 1.6;
     color: var(--text-gray);
     background-color: #f7fafc;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     padding: 2rem 1rem;
 }
 

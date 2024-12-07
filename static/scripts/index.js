@@ -27,7 +27,7 @@ document.getElementById('send').addEventListener('click', function () {
     typingDiv.innerHTML = `
         <div class="message-label">
             <img src="/static/images/bot-icon.png" alt="Bot Icon" class="bot-icon">
-            KidneyCareAI
+            KidneyCareAI:
         </div>
         <div class="message-content">Typing...</div>
     `;
