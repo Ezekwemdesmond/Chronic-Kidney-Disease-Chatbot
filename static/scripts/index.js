@@ -55,7 +55,7 @@ document.getElementById('send').addEventListener('click', function () {
             botDiv.innerHTML = `
                 <div class="message-label">
                     <img src="/static/images/bot-icon.png" alt="Bot Icon" class="bot-icon">
-                    KidneyCareAI
+                    KidneyCareAI:
                 </div>
                 <div class="message-content">${data.response}</div>
                 <div class="message-timestamp">${timestamp}</div>
@@ -75,7 +75,7 @@ document.getElementById('send').addEventListener('click', function () {
             botDiv.innerHTML = `
                 <div class="message-label">
                     <img src="/static/images/bot-icon.png" alt="Bot Icon" class="bot-icon">
-                    KidneyCareAI
+                    KidneyCareAI:
                 </div>
                 <div class="message-content">Sorry, something went wrong. Please try again later.</div>
             `;
