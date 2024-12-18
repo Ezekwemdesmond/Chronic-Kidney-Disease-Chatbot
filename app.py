@@ -146,7 +146,5 @@ def chat():
 
 
 if __name__ == "__main__":
-    # Bind to the PORT environment variable or default to 5000
-    port = int(os.environ.get("PORT", 5000))
-    print(f"Running on port {port}")
-    app.run(host="0.0.0.0", port=port)
+    
+    app.run()
