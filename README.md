@@ -43,7 +43,7 @@ To set up the project locally, follow these steps:
    Open your web browser and navigate to `http://localhost:5000`.
 
 ## Usage
-Once the application is running, users can interact with the chatbot through the web interface. Simply type in your questions related to chronic kidney disease, and the chatbot will provide appropriate responses. Additionally, users can input relevant health data to receive a classification of CKD or non-CKD based on the Random Forest model.
+Once the application is running, users can interact with the chatbot through the web interface. Simply type in your questions related to chronic kidney disease, and the chatbot will provide appropriate responses. Additionally, users can input relevant health data to receive a classification of CKD or non-CKD based on the Random Forest model and personalised advice.
 
 ## Contributing
 Contributions are welcome! If you'd like to contribute to this project, please follow these steps:
