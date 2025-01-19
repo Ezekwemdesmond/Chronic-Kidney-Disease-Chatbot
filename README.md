@@ -10,12 +10,17 @@ Additionally, it features a Random Forest prediction model that classifies CKD a
 - **Information Retrieval (RAG)**: Provides accurate information about chronic kidney disease.
 - **Machine Learning Integration**: Utilizes a Random Forest model for classifying CKD and non-CKD cases.
 
+## Live Demo
+You can access the live version of the chatbot [here](https://chatbot-service-836178923173.europe-west2.run.app/).
+
 ## Technologies Used
 - **Python**: Core programming language for backend logic.
 - **HTML/CSS/JavaScript**: Frontend development for user interface.
 - **Flask**: Web framework for building the application.
 - **Natural Language Processing (Openai LLM)**: For understanding user queries.
 - **Random Forest**: Machine learning algorithm for classification of CKD cases.
+- **OpenAI API**: For natural language processing capabilities.
+- **Pinecone API**: For managing and querying vector embeddings.
 
 ## Installation
 
@@ -33,13 +38,20 @@ To set up the project locally, follow these steps:
    pip install -r requirements.txt
    ```
 
-3. **Run the application**:
+3. **Set up API keys**:
+   You will need to provide your OpenAI and Pinecone API keys. Create a `.env` file in the project root and add the following lines:
+   ```plaintext
+   OPENAI_API_KEY=your_openai_api_key
+   PINECONE_API_KEY=your_pinecone_api_key
+   ```
+
+4. **Run the application**:
    Start the Flask server:
    ```bash
    python app.py
    ```
 
-4. **Access the chatbot**:
+5. **Access the chatbot**:
    Open your web browser and navigate to `http://localhost:5000`.
 
 ## Usage
