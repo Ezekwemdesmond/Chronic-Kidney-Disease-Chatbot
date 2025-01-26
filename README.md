@@ -66,6 +66,8 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 4. Push to the branch (`git push origin feature-branch`).
 5. Open a pull request.
 
+## Acknowledgements
+- **Dataset**: https://archive.ics.uci.edu/dataset/336/chronic+kidney+disease
 
 ## Contact
 For questions or suggestions, please reach out to [engrstephdez@gmail.com](mailto:engrstephdez@gmail.com).
