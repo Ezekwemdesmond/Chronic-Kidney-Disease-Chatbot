@@ -1,0 +1,24 @@
+[project]
+name = "ckd-chatbot"
+version = "2.0.0"
+description = "Chronic Kidney Disease Prediction and Management Chatbot"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "flask>=3.0.3",
+    "langchain>=0.3.7",
+    "langchain-community>=0.3.7",
+    "langchain-core>=0.3.19",
+    "langchain-openai>=0.2.9",
+    "langchain-pinecone>=0.0.1",
+    "langchain-huggingface>=0.1.2",
+    "pinecone>=5.4.0",
+    "openai>=1.54.5",
+    "sentence-transformers>=2.6.0",
+    "scikit-learn>=1.5.2",
+    "pandas>=2.2.3",
+    "numpy>=1.26.4",
+    "joblib>=1.4.2",
+    "pypdf>=5.1.0",
+    "python-dotenv>=1.0.1",
+]

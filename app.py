@@ -1,123 +1,214 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
-import joblib
-import numpy as np
-from model import preprocess_input
-import requests
-import json
-from store import download_hugging_face_embeddings
-from langchain_pinecone import Pinecone
-from langchain_openai import OpenAI
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
+"""
+Flask Web Application - Orchestrates all components
+Chronic Kidney Disease Prediction and Management Chatbot
+"""
+
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-#from helper import download_hugging_face_embeddings
-from helper import load_cached_embeddings
 import os
 import time
 
-# Load the trained model for kidney disease prediction
-model = joblib.load('./data/kidney_disease_rf_model.pkl')
-
-# Initialize the Flask app
-app = Flask(__name__)
-
-
-
-chat_prompt = (
-    "You are KidneyCareAI, a compassionate and knowledgeable medical assistant chatbot specializing in chronic kidney disease (CKD) prediction, management, and education. "
-    "You leverage retrieval-augmented generation (RAG) to provide users with accurate, personalized, and empathetic responses. "
-    "Your primary objectives are:\n"
-    "1. Assist users in understanding their CKD risk and prediction results with clear, user-friendly explanations.\n"
-    "2. Generate personalized advice for CKD management, including lifestyle, diet, and medical recommendations, tailored to the user's specific circumstances.\n"
-    "3. Educate users about CKD symptoms, causes, prevention, and treatment options in an accessible manner.\n"
-    "4. Respond empathetically and professionally, encouraging users to seek medical advice when needed.\n\n"
-    "Always retrieve and incorporate relevant information to ensure accurate and contextually appropriate responses. If you don't know the answer, acknowledge it politely and encourage the user to consult a healthcare professional.\n\n"
-    "Respond to the user's queries conversationally, empathetically, and concisely. Tailor your responses to their specific needs while clearly stating you are not a replacement for professional medical advice."
-    "\n\n{context}"
+from src import (
+    MLModelPipeline,
+    preprocess_input,
+    load_embeddings,
+    PineconeStore,
+    RAGPipeline
 )
 
 # Load environment variables
 load_dotenv()
 
-PINECONE_API_KEY=os.environ.get('PINECONE_API_KEY')
-OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
 
-os.environ["PINECONE_API_KEY"] = PINECONE_API_KEY
-os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+class CKDChatbotCore:
+    """
+    Main application class orchestrating ML and RAG pipelines.
+    Similar to KidneyCareAppCore pattern from KidneyCareAI.
+    """
 
-# Load Hugging Face embeddings (using caching)
-embeddings = load_cached_embeddings()
-#embeddings = download_hugging_face_embeddings()
-docsearch = Pinecone.from_existing_index(index_name='ckd-chatbot', embedding=embeddings)
+    def __init__(self, verbose=True):
+        """
+        Initialize the CKD Chatbot application.
+
+        Args:
+            verbose: Print initialization progress
+        """
+        self.verbose = verbose
+        self.ml_pipeline = None
+        self.rag_pipeline = None
+
+        if self.verbose:
+            print("\n" + "="*60)
+            print("Initializing CKD Chatbot Core")
+            print("="*60)
+
+        self.initialize()
+
+        if self.verbose:
+            print("\nCKD Chatbot initialized successfully!")
+            print("="*60 + "\n")
+
+    def initialize(self):
+        """Initialize all components: ML model and RAG pipeline."""
+        # Initialize ML pipeline
+        if self.verbose:
+            print("\n1. Initializing ML Pipeline...")
+
+        self.ml_pipeline = MLModelPipeline(verbose=self.verbose)
+        self.ml_pipeline.load_model()
+
+        # Initialize RAG pipeline
+        if self.verbose:
+            print("\n2. Initializing RAG Pipeline...")
+
+        # Load embeddings
+        embeddings = load_embeddings(verbose=self.verbose)
+
+        # Initialize Pinecone vector store
+        pinecone_api_key = os.getenv('PINECONE_API_KEY')
+        if not pinecone_api_key:
+            raise ValueError("PINECONE_API_KEY not found in environment variables")
+
+        vectorstore = PineconeStore(
+            api_key=pinecone_api_key,
+            index_name='ckd-chatbot',
+            dimension=384,
+            verbose=self.verbose
+        )
+
+        # Connect to existing index
+        vectorstore.init_index()
+
+        # Create retriever
+        retriever = vectorstore.as_retriever(embeddings, k=3)
+
+        # Initialize RAG pipeline
+        self.rag_pipeline = RAGPipeline(
+            retriever=retriever,
+            temperature=0.4,
+            max_tokens=500,
+            verbose=self.verbose
+        )
+        self.rag_pipeline.initialize()
+
+    def predict_ckd(self, form_data):
+        """
+        Make CKD prediction and generate personalized advice.
+
+        Args:
+            form_data: Dictionary with health parameters
+
+        Returns:
+            tuple: (prediction_result, advice)
+        """
+        # Preprocess and predict
+        features = preprocess_input(form_data)
+        prediction = self.ml_pipeline.model.predict(features)[0]
+
+        # Generate context-based query for RAG
+        if prediction == 1:
+            query = (
+                "The user is at risk of kidney disease"
+                "What advice can you provide to help them manage this risk?"
+            )
+            result = 'Kidney disease likely'
+        else:
+            query = (
+                "The user is not at immediate risk of kidney disease"
+                "What advice can you provide to help them maintain good kidney health?"
+            )
+            result = 'Kidney disease unlikely'
+
+        # Get personalized advice from RAG
+        rag_response = self.rag_pipeline.query(query)
+        advice = rag_response.get("answer", "I'm sorry, I couldn't find an answer to your question.")
+
+        advice = self._clean_response(advice)
+
+        return result, advice
+
+    def _clean_response(self, text):
+        """Remove source tags, KidneyCareAI prefix, and leading artifacts from LLM response."""
+        text = text.replace("[SOURCES_USED]", "").replace("[NO_SOURCES]", "")
+        text = text.replace("`[SOURCES_USED]`", "").replace("`[NO_SOURCES]`", "")
+        text = text.replace("KidneyCareAI:", "")
+        text = text.strip()
+        # Remove leading stray punctuation left behind after tag stripping
+        text = text.lstrip("?!.,;:- \n")
+        # Re-strip whitespace after removing leading punctuation
+        return text.strip()
+
+    def chat(self, message):
+        """
+        Handle chatbot interaction.
+
+        Args:
+            message: User's message string
+
+        Returns:
+            str: Bot's response
+        """
+        # Query RAG pipeline
+        rag_response = self.rag_pipeline.query(message)
+        bot_response = rag_response.get("answer", "I'm sorry, I couldn't find an answer to your question.")
+
+        return self._clean_response(bot_response)
 
 
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'ckd-chatbot-secret-key-2024')
 
-index_name = "ckd-chatbot"
-
-# Embed each chunk and upsert the embeddings into your Pinecone index.
-docsearch = Pinecone.from_existing_index(
-    index_name=index_name,
-    embedding=embeddings
-)
+# Global chatbot instance (singleton pattern)
+chatbot_core = None
 
 
-retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k":3})
-
-
-llm = OpenAI(temperature=0.4, max_tokens=500)
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", chat_prompt),
-        ("human", "{input}"),
-    ]
-)
-
-question_answer_chain = create_stuff_documents_chain(llm, prompt)
-rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+def get_chatbot():
+    """Get or create the CKDChatbotCore instance."""
+    global chatbot_core
+    if chatbot_core is None:
+        chatbot_core = CKDChatbotCore(verbose=True)
+    return chatbot_core
 
 
 @app.route('/')
 def home():
+    """Render the main chat interface."""
     return render_template('index.html')
+
 
 @app.route('/health-form')
 def health_form():
+    """Render the health details form."""
     return render_template('form.html')
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.form.to_dict()
-    features = preprocess_input(data)
-    prediction = model.predict(features)[0]
-    
-    # Create context for RAG
-    if prediction == 1:
-        query = (
-            "The user is at risk of kidney disease"
-            "What advice can you provide to help them manage this risk?"
-        )
-        result = 'Kidney disease likely'
-    else:
-        query = (
-            "The user is not at immediate risk of kidney disease"
-            "What advice can you provide to help them maintain good kidney health?"
-        )
-        result = 'Kidney disease unlikely'
-    
-    # Use RAG to generate personalized advice
-    rag_response = rag_chain.invoke({"input": query})
-    advice = rag_response.get("answer", "I'm sorry, I couldn't find an answer to your question.")
-    advice = advice.replace("KidneyCareAI:", "").strip()  # Remove any unnecessary prefix
+    """Handle ML prediction request."""
+    try:
+        # Get form data
+        data = request.form.to_dict()
 
-    # Return prediction and personalized advice
-    return render_template('result.html', prediction=result, advice=advice)
+        # Get chatbot instance
+        chatbot = get_chatbot()
+
+        # Make prediction and get advice
+        prediction_result, advice = chatbot.predict_ckd(data)
+
+        # Return result
+        return render_template('result.html', prediction=prediction_result, advice=advice)
+
+    except Exception as e:
+        print(f"Error in /predict: {e}")
+        return render_template('result.html',
+                             prediction="Error",
+                             advice=f"An error occurred: {str(e)}")
 
 
-
-
-@app.route("/chat", methods=["POST"])
+@app.route('/chat', methods=['POST'])
 def chat():
+    """Handle chatbot conversation."""
     try:
         # Access JSON payload
         data = request.json
@@ -129,22 +220,30 @@ def chat():
         if not user_message:
             return jsonify({"response": "No message provided in the request."}), 400
 
-        # Simulate typing delay
-        time.sleep(2)  # Add a 2-second delay to mimic typing
+        # Simulate typing delay (2 seconds)
+        time.sleep(2)
 
-        # Invoke RAG chain to get the chatbot's response
-        rag_response = rag_chain.invoke({"input": user_message})
+        # Get chatbot instance
+        chatbot = get_chatbot()
 
-        # Extract the final answer without redundant prefixes
-        bot_response = rag_response.get("answer", "I'm sorry, I couldn't find an answer to your question.")
-        bot_response = bot_response.replace("KidneyCareAI:", "").strip()  # Remove any unnecessary prefix
+        # Get bot response
+        bot_response = chatbot.chat(user_message)
 
-        # Return the response as JSON
+        # Return response as JSON
         return jsonify({"response": bot_response})
+
     except Exception as e:
+        print(f"Error in /chat: {e}")
         return jsonify({"response": f"An error occurred: {str(e)}"}), 500
 
 
-if __name__ == "__main__":
-    
-    app.run()
+if __name__ == '__main__':
+    # Initialize the chatbot on startup
+    get_chatbot()
+
+    # Run Flask development server
+    app.run(
+        host='0.0.0.0',
+        port=5000,
+        debug=True
+    )

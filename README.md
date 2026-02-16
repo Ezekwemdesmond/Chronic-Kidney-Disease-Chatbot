@@ -1,8 +1,8 @@
 # Chronic Kidney Disease Prediction and Management Chatbot
 
 ## Overview
-The **Chronic Kidney Disease Prediction and Management Chatbot** is an interactive application designed to provide users with information and assistance regarding chronic kidney disease (CKD). 
-This chatbot leverages natural language processing to engage users in conversation and deliver relevant health information. 
+The **Chronic Kidney Disease Prediction and Management Chatbot** is an interactive application designed to provide users with information and assistance regarding chronic kidney disease (CKD).
+This chatbot leverages natural language processing to engage users in conversation and deliver relevant health information.
 Additionally, it features a Random Forest prediction model that classifies CKD and non-CKD cases. This project seamlessly combine the CKD prediction model with the chatbot to provide personalized, actionable insights during patient interactions
 
 ## Features
@@ -17,14 +17,62 @@ You can access the live version of the chatbot [here](https://chatbot-service-83
 - **Python**: Core programming language for backend logic.
 - **HTML/CSS/JavaScript**: Frontend development for user interface.
 - **Flask**: Web framework for building the application.
+- **Docker**: Containerization for consistent deployment.
 - **Natural Language Processing (Openai LLM)**: For understanding user queries.
 - **Random Forest**: Machine learning algorithm for classification of CKD cases.
 - **OpenAI API**: For natural language processing capabilities.
 - **Pinecone API**: For managing and querying vector embeddings.
 
+## Architecture
+
+This project follows a modular architecture with clean separation of concerns:
+
+### Project Structure
+```
+src/
+├── __init__.py              # Package exports
+├── ml_model.py             # ML model training and prediction
+├── document_processing.py  # PDF loading and embeddings
+├── vectorstore.py          # Pinecone vector store management
+└── rag_pipeline.py         # RAG chain and LLM integration
+
+app.py                      # Flask application entry point
+Dockerfile                  # Docker container configuration
+```
+
+### Key Design Patterns
+- **Modular Package Structure**: Business logic organized in `src/` modules
+- **Class-Based Components**: Clean encapsulation (MLModelPipeline, PineconeStore, RAGPipeline)
+- **Orchestration Pattern**: CKDChatbotCore class coordinates all components
+- **Separation of Concerns**: Flask routes separate from business logic
+
 ## Installation
 
-To set up the project locally, follow these steps:
+### Option 1: Docker (Recommended)
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Ezekwemdesmond/Chronic-Kidney-Disease-Chatbot.git
+   cd Chronic-Kidney-Disease-Chatbot
+   ```
+
+2. **Set up API keys**:
+   Create a `.env` file in the project root:
+   ```plaintext
+   OPENAI_API_KEY=your_openai_api_key
+   PINECONE_API_KEY=your_pinecone_api_key
+   ```
+
+3. **Build and run with Docker**:
+   ```bash
+   docker build -t ckd-chatbot .
+   docker run -p 5000:5000 --env-file .env ckd-chatbot
+   ```
+
+4. **Access the chatbot**:
+   Open your web browser and navigate to `http://localhost:5000`.
+
+### Option 2: Local Setup
 
 1. **Clone the repository**:
    ```bash
@@ -39,14 +87,13 @@ To set up the project locally, follow these steps:
    ```
 
 3. **Set up API keys**:
-   You will need to provide your OpenAI and Pinecone API keys. Create a `.env` file in the project root and add the following lines:
+   Create a `.env` file in the project root:
    ```plaintext
    OPENAI_API_KEY=your_openai_api_key
    PINECONE_API_KEY=your_pinecone_api_key
    ```
 
 4. **Run the application**:
-   Start the Flask server:
    ```bash
    python app.py
    ```
