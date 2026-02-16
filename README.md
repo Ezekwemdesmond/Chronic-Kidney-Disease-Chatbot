@@ -10,8 +10,9 @@ Additionally, it features a Random Forest prediction model that classifies CKD a
 - **Information Retrieval (RAG)**: Provides accurate information about chronic kidney disease.
 - **Machine Learning Integration**: Utilizes a Random Forest model for classifying CKD and non-CKD cases.
 
-## Live Demo
-You can access the live version of the chatbot [here](https://chatbot-service-836178923173.europe-west2.run.app/).
+## 🎥 Demo
+
+![CKD Chatbot Demo](ckd.gif)
 
 ## Technologies Used
 - **Python**: Core programming language for backend logic.
