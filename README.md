@@ -59,7 +59,6 @@
 
 This platform delivers two complementary capabilities in a single, unified interface:
 
-
 1. **Risk Stratification** — A trained Random Forest classifier analyzes 15 clinical biomarkers to predict CKD likelihood with ~98% accuracy, providing immediate, personalized risk assessments.
 2. **Evidence-Based Q&A** — A Retrieval-Augmented Generation (RAG) pipeline grounded in authoritative clinical literature (KDIGO guidelines, Brenner & Rector's Kidney textbook, ESPEN guidelines) powers a conversational assistant capable of answering nuanced medical questions.
 
