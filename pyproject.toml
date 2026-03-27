@@ -1,7 +1,7 @@
 [project]
 name = "ckd-chatbot"
 version = "2.0.0"
-description = "Chronic Kidney Disease Prediction and Management Chatbot"
+description = "CKD risk prediction (Random Forest) + RAG medical chatbot with source-cited responses, grounded in KDIGO guidelines and clinical literature"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [

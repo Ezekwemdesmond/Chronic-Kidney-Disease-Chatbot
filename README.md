@@ -76,7 +76,7 @@ The system is containerized with Docker, deployed on **Google Cloud Run**, and b
 | **Personalized Insights** | Prediction results are passed through the RAG pipeline to generate context-specific health guidance |
 | **Medical Knowledge Base** | ~25MB of curated clinical PDFs indexed in Pinecone for semantic retrieval at query time |
 | **Conversational AI** | GPT-powered chatbot with a defined `KidneyCareAI` persona, tuned for factual, grounded responses |
-| **Source Transparency** | Every LLM response is tagged with `[SOURCES_USED]` or `[NO_SOURCES]` for traceability |
+| **Source Citations** | Medical responses display the source document(s) and page number(s) used, shown as pill tags below each answer |
 | **Real-Time Chat UX** | Typing indicators, timestamped messages, and smooth scroll for a polished chat experience |
 | **Containerized Deployment** | Dockerfile with layer-optimized caching for fast, reproducible builds |
 
@@ -251,11 +251,17 @@ LangChain RetrievalChain
 OpenAI GPT (temp=0.4, max_tokens=500)
   System Persona: "KidneyCareAI — friendly, knowledgeable medical assistant"
   • Grounds claims in retrieved documents
-  • Tags responses with [SOURCES_USED] / [NO_SOURCES]
+  • Signals source usage via [SOURCES_USED] / [NO_SOURCES] tags
   • Distinguishes medical information from medical advice
     │
     ▼
-Cleaned Response → User
+Source Detection & Extraction
+  • [SOURCES_USED] tag triggers metadata extraction from retrieved chunks
+  • Filename, page number, and content preview collected per source
+  • Duplicates deduplicated; page numbers converted to 1-indexed
+    │
+    ▼
+Response → User  (answer text + source pill tags)
 ```
 
 ---
@@ -378,7 +384,7 @@ Navigate to the main page at `http://localhost:5000` to access the conversationa
 - *"What dietary changes are recommended for CKD stage 3?"*
 - *"Explain the KDIGO staging system for CKD."*
 
-The assistant retrieves relevant passages from the medical knowledge base and synthesizes a grounded, factual response.
+The assistant retrieves relevant passages from the medical knowledge base and synthesizes a grounded, factual response. When sources are used, **source pill tags** appear below the answer showing the document filename and page number — hover over a tag to preview the retrieved excerpt.
 
 ### CKD Risk Assessment
 
@@ -415,6 +421,7 @@ This project uses the **UCI Chronic Kidney Disease Dataset**.
 
 ## Roadmap
 
+- [x] **Source Citations** — Display retrieved document name and page number as pill tags below each medical response
 - [ ] **SHAP Explainability** — Add feature importance visualizations to the results page so users understand which biomarkers drove the prediction
 - [ ] **CKD Stage Prediction** — Extend the classifier from binary to multi-class (Stages 1–5 + ESRD)
 - [ ] **Patient History** — Persist conversation and prediction history per session for longitudinal tracking

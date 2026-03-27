@@ -49,6 +49,21 @@ document.getElementById('send').addEventListener('click', function () {
             // Remove "typing..." indicator
             chatbox.removeChild(typingDiv);
 
+            // Build sources HTML if sources were returned
+            let sourcesHTML = '';
+            if (data.sources && data.sources.length > 0) {
+                const tags = data.sources.map(s => {
+                    const page = s.page !== 'N/A' ? ` (p.${s.page})` : '';
+                    const title = s.preview ? s.preview : '';
+                    return `<span class="source-tag" title="${title}">${s.source}${page}</span>`;
+                }).join('');
+                sourcesHTML = `
+                    <div class="sources-container">
+                        <div class="sources-header">Sources (${data.sources.length})</div>
+                        <div class="sources-list">${tags}</div>
+                    </div>`;
+            }
+
             // Append bot response with timestamp
             let botDiv = document.createElement('div');
             botDiv.className = 'message bot-message';
@@ -58,6 +73,7 @@ document.getElementById('send').addEventListener('click', function () {
                     KidneyCareAI:
                 </div>
                 <div class="message-content">${data.response}</div>
+                ${sourcesHTML}
                 <div class="message-timestamp">${timestamp}</div>
             `;
             chatbox.appendChild(botDiv);

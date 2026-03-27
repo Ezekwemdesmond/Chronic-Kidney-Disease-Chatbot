@@ -181,6 +181,46 @@ h1 {
     background-color: #2c5282;
 }
 
+.sources-container {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.sources-header {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #718096;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.sources-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.source-tag {
+    display: inline-block;
+    background-color: var(--light-blue);
+    border: 1px solid var(--border-blue);
+    color: var(--primary-blue);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 1rem;
+    cursor: default;
+    white-space: nowrap;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.source-tag:hover {
+    background-color: var(--border-blue);
+}
+
 @media (max-width: 640px) {
     .container {
         padding: 1rem;

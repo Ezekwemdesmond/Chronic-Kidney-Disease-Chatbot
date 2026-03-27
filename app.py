@@ -108,13 +108,13 @@ class CKDChatbotCore:
         # Generate context-based query for RAG
         if prediction == 1:
             query = (
-                "The user is at risk of kidney disease"
+                "The user is at risk of kidney disease. "
                 "What advice can you provide to help them manage this risk?"
             )
             result = 'Kidney disease likely'
         else:
             query = (
-                "The user is not at immediate risk of kidney disease"
+                "The user is not at immediate risk of kidney disease. "
                 "What advice can you provide to help them maintain good kidney health?"
             )
             result = 'Kidney disease unlikely'
@@ -146,13 +146,39 @@ class CKDChatbotCore:
             message: User's message string
 
         Returns:
-            str: Bot's response
+            dict: {'answer': str, 'sources': list}
         """
         # Query RAG pipeline
         rag_response = self.rag_pipeline.query(message)
-        bot_response = rag_response.get("answer", "I'm sorry, I couldn't find an answer to your question.")
+        raw_answer = rag_response.get("answer", "I'm sorry, I couldn't find an answer to your question.")
+        context_docs = rag_response.get("context", [])
 
-        return self._clean_response(bot_response)
+        # Detect whether LLM used sources before cleaning tags
+        sources_used = '[SOURCES_USED]' in raw_answer
+
+        # Clean the answer (strips tags and artifacts)
+        cleaned_answer = self._clean_response(raw_answer)
+
+        # Extract source metadata from retrieved documents
+        sources = []
+        if sources_used:
+            seen = set()
+            for doc in context_docs:
+                metadata = doc.metadata if hasattr(doc, 'metadata') else {}
+                source_name = metadata.get('source', 'Unknown')
+                if '\\' in source_name or '/' in source_name:
+                    source_name = source_name.split('\\')[-1].split('/')[-1]
+                page = metadata.get('page', 'N/A')
+                # Convert 0-indexed page to 1-indexed for display
+                if isinstance(page, int):
+                    page = page + 1
+                key = (source_name, page)
+                if key not in seen:
+                    seen.add(key)
+                    preview = doc.page_content[:100] + '...' if hasattr(doc, 'page_content') else ''
+                    sources.append({'source': source_name, 'page': page, 'preview': preview})
+
+        return {'answer': cleaned_answer, 'sources': sources}
 
 
 # Initialize Flask app
@@ -226,11 +252,15 @@ def chat():
         # Get chatbot instance
         chatbot = get_chatbot()
 
-        # Get bot response
-        bot_response = chatbot.chat(user_message)
+        # Get bot response with sources
+        result = chatbot.chat(user_message)
 
         # Return response as JSON
-        return jsonify({"response": bot_response})
+        return jsonify({
+            "response": result['answer'],
+            "sources": result['sources'],
+            "sources_count": len(result['sources'])
+        })
 
     except Exception as e:
         print(f"Error in /chat: {e}")
