@@ -81,7 +81,6 @@ The system is containerized with Docker, deployed on **Google Cloud Run**, and b
 | **Source Transparency** | Every LLM response is tagged with `[SOURCES_USED]` or `[NO_SOURCES]` for traceability |
 | **Real-Time Chat UX** | Typing indicators, timestamped messages, and smooth scroll for a polished chat experience |
 | **Containerized Deployment** | Dockerfile with layer-optimized caching for fast, reproducible builds |
-| **Cloud-Native** | Deployed on Google Cloud Run (Europe West 2) with serverless scaling |
 
 ---
 
