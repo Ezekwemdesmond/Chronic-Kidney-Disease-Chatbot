@@ -1,12 +1,12 @@
 """RAG Pipeline and LLM Integration"""
 
-from langchain_openai import OpenAI
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
+from openai import OpenAI as OpenAIClient
 
 
-# System prompt defining KidneyCareAI persona and behavior
+# ---------------------------------------------------------------------------
+# System prompt — defines KidneyCareAI persona and source-tagging protocol
+# ---------------------------------------------------------------------------
+
 KIDNEYCAREAI_SYSTEM_PROMPT = """You are KidneyCareAI, a friendly and knowledgeable medical information assistant specialized in Chronic Kidney Disease (CKD) and kidney health.
 
 ## RESPONSE FORMAT REQUIREMENT
@@ -78,82 +78,116 @@ If the user asks a medical question about kidneys or CKD:
 - If someone describes an emergency: Direct them to call emergency services immediately
 - Be careful with medication-related questions: Always recommend consulting a doctor
 - When uncertain about medical information: Recommend professional consultation
-- NEVER make up medical facts not in the retrieved information
+- NEVER make up medical facts not in the retrieved information"""
 
-{context}"""
+
+# User prompt template — injects retrieved context and the user's question
+_USER_PROMPT_TEMPLATE = """Here is relevant medical information retrieved from clinical literature:
+
+{context}
+
+---
+
+User's question: {question}
+
+---
+
+Please respond as KidneyCareAI. Use the reference information above to inform your answer,
+but explain it in your own words in a warm, patient-friendly tone.
+Remember to start with [SOURCES_USED] or [NO_SOURCES] as instructed."""
 
 
 class RAGPipeline:
     """
     RAG pipeline for KidneyCareAI chatbot.
-    Combines retrieval and generation for contextual responses.
+
+    Uses HybridRetriever for document retrieval and calls the OpenAI
+    chat completions API directly for response generation.
     """
 
-    def __init__(self, retriever, temperature=0.4, max_tokens=500, verbose=True):
+    def __init__(
+        self,
+        retriever,
+        model: str = "gpt-4o-mini",
+        temperature: float = 0.4,
+        max_tokens: int = 500,
+        verbose: bool = True
+    ):
         """
         Initialize RAG pipeline.
 
         Args:
-            retriever: LangChain retriever from PineconeStore
-            temperature: LLM temperature for response generation (default: 0.4)
-            max_tokens: Maximum tokens in response (default: 500)
-            verbose: Print progress information
+            retriever   : HybridRetriever instance
+            model       : OpenAI chat model name
+            temperature : Sampling temperature (default: 0.4)
+            max_tokens  : Maximum tokens in response (default: 500)
+            verbose     : Print progress information
         """
         self.retriever = retriever
+        self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.verbose = verbose
-        self.llm = None
-        self.chain = None
+        self.client: OpenAIClient | None = None
 
     def initialize(self):
-        """Setup LLM and RAG chain."""
+        """Create the OpenAI client."""
         if self.verbose:
             print("Initializing RAG pipeline...")
 
-        # Initialize OpenAI LLM
-        self.llm = OpenAI(temperature=self.temperature, max_tokens=self.max_tokens)
-
-        # Create prompt template
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", KIDNEYCAREAI_SYSTEM_PROMPT),
-            ("human", "{input}"),
-        ])
-
-        # Create question-answer chain
-        question_answer_chain = create_stuff_documents_chain(self.llm, prompt)
-
-        # Create retrieval chain
-        self.chain = create_retrieval_chain(self.retriever, question_answer_chain)
+        self.client = OpenAIClient()
 
         if self.verbose:
-            print("RAG pipeline initialized successfully")
+            print(f"RAG pipeline initialized — model: {self.model}")
 
-    def query(self, question):
+    def query(self, question: str) -> dict:
         """
-        Query the RAG pipeline with a question.
+        Run a full RAG query: retrieve → build context → generate response.
 
         Args:
             question: User's question string
 
         Returns:
-            dict: Response containing 'answer' and 'context'
+            dict with keys:
+              'answer'  : str — the LLM-generated response (may include source tags)
+              'context' : List[Document] — retrieved chunks (used by app.py for citations)
         """
-        if self.chain is None:
+        if self.client is None:
             raise ValueError("RAG pipeline not initialized. Call initialize() first.")
 
-        response = self.chain.invoke({"input": question})
-        return response
+        # 1. Hybrid retrieval
+        docs = self.retriever.retrieve(question)
 
-    def get_answer(self, question):
-        """
-        Get just the answer from RAG pipeline (convenience method).
+        # 2. Build context string from retrieved chunks
+        if docs:
+            context = "\n\n".join(doc.page_content for doc in docs)
+        else:
+            context = "No relevant context found in the knowledge base."
 
-        Args:
-            question: User's question string
+        # 3. Call OpenAI chat completions
+        user_prompt = _USER_PROMPT_TEMPLATE.format(
+            context=context,
+            question=question
+        )
 
-        Returns:
-            str: Answer text
-        """
-        response = self.query(question)
-        return response.get("answer", "I'm sorry, I couldn't find an answer to your question.")
+        messages = [
+            {"role": "system", "content": KIDNEYCAREAI_SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ]
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+        )
+
+        answer = response.choices[0].message.content
+
+        return {"answer": answer, "context": docs}
+
+    def get_answer(self, question: str) -> str:
+        """Convenience wrapper — returns just the answer string."""
+        return self.query(question).get(
+            "answer", "I'm sorry, I couldn't find an answer to your question."
+        )

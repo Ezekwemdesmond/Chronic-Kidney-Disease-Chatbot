@@ -11,8 +11,11 @@ import time
 from src import (
     MLModelPipeline,
     preprocess_input,
+    load_documents,
+    text_split,
     load_embeddings,
     PineconeStore,
+    HybridRetriever,
     RAGPipeline
 )
 
@@ -57,14 +60,14 @@ class CKDChatbotCore:
         self.ml_pipeline = MLModelPipeline(verbose=self.verbose)
         self.ml_pipeline.load_model()
 
-        # Initialize RAG pipeline
+        # Initialize RAG Pipeline
         if self.verbose:
             print("\n2. Initializing RAG Pipeline...")
 
         # Load embeddings
         embeddings = load_embeddings(verbose=self.verbose)
 
-        # Initialize Pinecone vector store
+        # Connect to Pinecone
         pinecone_api_key = os.getenv('PINECONE_API_KEY')
         if not pinecone_api_key:
             raise ValueError("PINECONE_API_KEY not found in environment variables")
@@ -75,16 +78,30 @@ class CKDChatbotCore:
             dimension=384,
             verbose=self.verbose
         )
-
-        # Connect to existing index
         vectorstore.init_index()
 
-        # Create retriever
-        retriever = vectorstore.as_retriever(embeddings, k=3)
+        # Load document chunks for the BM25 corpus
+        if self.verbose:
+            print("Loading document chunks for BM25 corpus...")
+        raw_docs = load_documents(data_dir='data/', verbose=self.verbose)
+        doc_chunks = text_split(raw_docs)
+        if self.verbose:
+            print(f"BM25 corpus: {len(doc_chunks)} chunks")
 
-        # Initialize RAG pipeline
+        # Build hybrid retriever (semantic via Pinecone + BM25 + RRF)
+        hybrid_retriever = HybridRetriever(
+            embeddings=embeddings,
+            pinecone_index=vectorstore.index,
+            doc_chunks=doc_chunks,
+            k=5,
+            beta=0.5,
+            verbose=self.verbose
+        )
+
+        # Initialize RAG pipeline with direct OpenAI chat completions
         self.rag_pipeline = RAGPipeline(
-            retriever=retriever,
+            retriever=hybrid_retriever,
+            model="gpt-4o-mini",
             temperature=0.4,
             max_tokens=500,
             verbose=self.verbose
