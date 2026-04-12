@@ -14,9 +14,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![LangChain](https://img.shields.io/badge/LangChain-RAG_Pipeline-1C3C3C?style=for-the-badge)](https://www.langchain.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-
 **[Live Demo](https://chatbot-service-836178923173.europe-west2.run.app/) &nbsp;|&nbsp; [Report a Bug](https://github.com/Ezekwemdesmond/Chronic-Kidney-Disease-Chatbot/issues) &nbsp;|&nbsp; [Request a Feature](https://github.com/Ezekwemdesmond/Chronic-Kidney-Disease-Chatbot/issues)**
-
 </div>
 
 ---
