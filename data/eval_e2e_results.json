@@ -1,0 +1,74 @@
+[
+  {
+    "label": "CKD \u2014 Severe (diabetic nephropathy)",
+    "expected": "Kidney disease likely",
+    "prediction": "Kidney disease likely",
+    "correct": true,
+    "advice": "If you are at risk of kidney disease, there are several important steps you can take to help manage this risk and protect your kidney health. Here\u2019s some advice based on current guidelines:\n\n1. **Know Your Risk Factors**: It's crucial to understand if you have any conditions that increase your risk for chronic kidney disease (CKD), such as diabetes, high blood pressure, or a family history of kidney issues. Being aware of these factors can help you and your healthcare provider monitor your kidney function more closely.\n\n2. **Regular Check-ups**: Regular testing is essential, especially if you fall into high-risk groups. This includes people with diabetes, hypertension, or other systemic diseases that can affect the kidneys. Early detection of kidney problems can lead to better management and potentially slow down disease progression.\n\n3. **Healthy Lifestyle Choices**: Adopting a healthy lifestyle can significantly impact your kidney health. This includes:\n   - Eating a balanced diet low in sodium and processed foods.\n   - Staying hydrated by drinking enough water.\n   - Maintaining a healthy weight through regular physical activity.\n   - Avoiding smoking and limiting alcohol consumption.\n\n4. **Monitor Your Health**: Keep track of your blood pressure and blood sugar levels. Managing these can help reduce the risk of kidney damage.\n\n5. **Medication Awareness**: If you are taking medications that could potentially harm your kidneys (like certain pain relievers), discuss alternatives with your healthcare provider.\n\n6. **Consult Healthcare Providers**: Regular consultations with your healthcare provider can help you understand your kidney health better and decide on the best course of action. They can guide you on interventions that may be necessary to minimize your cardiovascular risk and manage any kidney-related complications.\n\nTaking these proactive steps can help you manage your risk of kidney disease effectively. Remember, early identification and treatment are key to reducing the risk of serious complications. If you have any specific concerns or symptoms, please consult your healthcare provider for personalized advice.",
+    "coherence": {
+      "score": 5,
+      "verdict": "The advice is coherent and appropriately addresses the patient's risk of kidney disease with specific and actionable steps.",
+      "issues": ""
+    }
+  },
+  {
+    "label": "CKD \u2014 Moderate (hypertensive nephrosclerosis)",
+    "expected": "Kidney disease likely",
+    "prediction": "Kidney disease likely",
+    "correct": true,
+    "advice": "If you're at risk of kidney disease, it's important to take proactive steps to manage that risk and protect your kidney health. Here are some key strategies based on the information available:\n\n1. **Regular Screening**: It's essential to have regular check-ups, especially if you have risk factors such as diabetes, high blood pressure, cardiovascular disease, or a family history of kidney problems. Early detection can help you manage any issues before they become more serious.\n\n2. **Healthy Lifestyle Choices**: Adopting a healthy lifestyle can significantly impact your kidney health. This includes:\n   - Eating a balanced diet low in sodium and processed foods.\n   - Staying hydrated by drinking plenty of water.\n   - Maintaining a healthy weight through regular physical activity.\n   - Avoiding smoking and limiting alcohol consumption.\n\n3. **Managing Health Conditions**: If you have conditions like diabetes or hypertension, it's crucial to manage them effectively. This might involve medication, lifestyle changes, and regular monitoring of your blood sugar and blood pressure levels.\n\n4. **Medication Awareness**: Be cautious with medications that can harm your kidneys, especially over-the-counter pain relievers and certain prescriptions. Always discuss any new medications with your healthcare provider.\n\n5. **Monitoring Kidney Function**: If you are identified as being at risk, your healthcare provider may recommend regular tests to monitor your kidney function. This can help catch any changes early on and allow for timely intervention.\n\n6. **Consulting Healthcare Providers**: Always consult with your healthcare provider about your specific risks and the best strategies for you. They can provide personalized advice and support based on your individual health needs.\n\nTaking these steps can help reduce your risk of developing chronic kidney disease and its associated complications. Remember, early identification and management are key to maintaining kidney health!",
+    "coherence": {
+      "score": 5,
+      "verdict": "The advice is coherent and appropriately addresses the patient's risk of kidney disease with specific and actionable strategies.",
+      "issues": ""
+    }
+  },
+  {
+    "label": "CKD \u2014 Mild (Stage 3, early anaemia)",
+    "expected": "Kidney disease likely",
+    "prediction": "Kidney disease likely",
+    "correct": true,
+    "advice": "If you're at risk of kidney disease, there are several important steps you can take to help manage that risk and protect your kidney health. Here\u2019s some advice based on the information available:\n\n1. **Regular Screening**: Since many people with chronic kidney disease (CKD) may not show symptoms, regular testing is crucial. If you have risk factors such as diabetes, high blood pressure, or a family history of kidney disease, it\u2019s important to have your kidney function checked regularly. This can help identify any issues early on.\n\n2. **Healthy Lifestyle Choices**: Adopting a healthy lifestyle can significantly impact your kidney health. This includes:\n   - Eating a balanced diet rich in fruits, vegetables, whole grains, and lean proteins while limiting salt, sugar, and unhealthy fats.\n   - Staying physically active to maintain a healthy weight.\n   - Avoiding smoking and limiting alcohol consumption.\n\n3. **Manage Risk Factors**: If you have conditions like diabetes or hypertension, managing these effectively is key. This might involve working with your healthcare provider to adjust medications, monitor your blood pressure and blood sugar levels, and make necessary lifestyle changes.\n\n4. **Stay Hydrated**: Drinking enough water is important for kidney health. It helps your kidneys filter waste from the blood. However, if you have existing kidney issues, consult your doctor about how much fluid is right for you.\n\n5. **Be Aware of Medications**: Some medications can be harmful to the kidneys, especially if taken inappropriately. Always discuss any medications you\u2019re taking with your healthcare provider, particularly if they are known to affect kidney function.\n\n6. **Follow-Up Care**: If you are diagnosed with CKD or are at high risk, regular follow-up appointments with your healthcare provider are essential. They can help monitor your kidney function and manage any complications that may arise.\n\nBy taking these proactive steps, you can help minimize your risk of developing more serious kidney problems and improve your overall health. Remember, it\u2019s always best to consult with your healthcare provider for personalized advice and to discuss any specific concerns you may have.",
+    "coherence": {
+      "score": 5,
+      "verdict": "The advice is coherent and highly appropriate for the prediction of kidney disease risk.",
+      "issues": ""
+    }
+  },
+  {
+    "label": "No CKD \u2014 Young healthy adult",
+    "expected": "Kidney disease unlikely",
+    "prediction": "Kidney disease unlikely",
+    "correct": true,
+    "advice": "To maintain good kidney health, even if you're not at immediate risk of kidney disease, there are several proactive steps you can take:\n\n1. **Stay Hydrated**: Drinking enough water is essential for your kidneys to function properly. It helps them filter waste from your blood effectively.\n\n2. **Eat a Balanced Diet**: Focus on a diet rich in fruits, vegetables, whole grains, and lean proteins. Limiting salt, sugar, and processed foods can help reduce the strain on your kidneys.\n\n3. **Monitor Blood Pressure**: High blood pressure can harm your kidneys over time. Regularly check your blood pressure and maintain it within a healthy range through lifestyle changes or medication if necessary.\n\n4. **Manage Blood Sugar Levels**: If you have diabetes or are at risk, keeping your blood sugar levels in check can prevent kidney damage.\n\n5. **Exercise Regularly**: Engaging in regular physical activity can help maintain a healthy weight and reduce the risk of conditions that can affect kidney health, such as high blood pressure and diabetes.\n\n6. **Avoid Smoking and Limit Alcohol**: Smoking can worsen kidney function, and excessive alcohol can lead to high blood pressure and other health issues. Reducing or eliminating these can benefit your overall health.\n\n7. **Get Regular Check-ups**: Regular visits to your healthcare provider can help identify any early signs of kidney issues, especially if you have risk factors like a family history of kidney disease.\n\n8. **Educate Yourself**: Being informed about kidney health empowers you to make better choices. Seek out reliable information and resources that can guide you in maintaining kidney health.\n\nBy incorporating these habits into your lifestyle, you can help protect your kidneys and promote overall health. If you have specific concerns or conditions, it's always a good idea to discuss them with your healthcare provider for personalized advice.",
+    "coherence": {
+      "score": 5,
+      "verdict": "The advice is coherent and appropriate, providing proactive steps to maintain kidney health in line with the prediction of low risk for kidney disease.",
+      "issues": ""
+    }
+  },
+  {
+    "label": "No CKD \u2014 Middle-aged, slightly elevated BP",
+    "expected": "Kidney disease unlikely",
+    "prediction": "Kidney disease unlikely",
+    "correct": true,
+    "advice": "To maintain good kidney health, there are several proactive steps you can take, even if you're not at immediate risk of kidney disease. Here are some key pieces of advice:\n\n1. **Stay Hydrated**: Drinking enough water is essential for kidney function. It helps your kidneys filter waste from the blood and keeps them functioning properly.\n\n2. **Eat a Balanced Diet**: Focus on a diet rich in fruits, vegetables, whole grains, and lean proteins. Reducing salt and processed foods can help lower blood pressure, which is beneficial for your kidneys.\n\n3. **Manage Blood Pressure and Blood Sugar**: High blood pressure and diabetes are significant risk factors for kidney disease. Regular check-ups to monitor these levels can help catch any issues early.\n\n4. **Avoid Smoking and Limit Alcohol**: Smoking can damage blood vessels and reduce blood flow to the kidneys. Limiting alcohol intake can also protect your kidney health.\n\n5. **Stay Active**: Regular physical activity helps maintain a healthy weight and lowers blood pressure, both of which are good for your kidneys.\n\n6. **Know Your Family History**: If kidney disease runs in your family, it's important to be aware and discuss this with your healthcare provider. They can guide you on any necessary screenings or lifestyle adjustments.\n\n7. **Regular Check-Ups**: Regular visits to your healthcare provider can help monitor your kidney function and overall health, allowing for early detection of any potential issues.\n\n8. **Educate Yourself**: Understanding kidney health and being informed about your health can empower you to make better decisions. Accessing reliable information can help you stay proactive.\n\nBy incorporating these habits into your daily routine, you can support your kidney health and reduce the risk of developing kidney problems in the future. Remember, it\u2019s always a good idea to consult with your healthcare provider for personalized advice tailored to your specific health needs.",
+    "coherence": {
+      "score": 5,
+      "verdict": "The advice is coherent and appropriate, providing proactive steps to maintain kidney health in line with the prediction of low risk for kidney disease.",
+      "issues": ""
+    }
+  },
+  {
+    "label": "No CKD \u2014 Older adult, controlled diabetes",
+    "expected": "Kidney disease unlikely",
+    "prediction": "Kidney disease likely",
+    "correct": false,
+    "advice": "If you're at risk of kidney disease, it's important to take proactive steps to manage that risk and protect your kidney health. Here are some key strategies you can consider:\n\n1. **Regular Screening**: Since many people with chronic kidney disease (CKD) are asymptomatic, regular testing is crucial. If you have conditions like diabetes, high blood pressure, or a family history of kidney disease, you should get your kidney function checked regularly. This helps in early identification of any potential issues.\n\n2. **Healthy Lifestyle Choices**: Adopting a healthy lifestyle can significantly impact your kidney health. This includes eating a balanced diet low in salt and processed foods, maintaining a healthy weight, and staying physically active. These habits can help manage underlying conditions that affect your kidneys.\n\n3. **Control Blood Pressure and Blood Sugar**: Keeping your blood pressure and blood sugar levels within target ranges is vital. If you have hypertension or diabetes, work closely with your healthcare provider to manage these conditions effectively.\n\n4. **Avoid Nephrotoxic Substances**: Be cautious with medications and substances that can harm your kidneys. Some over-the-counter pain relievers and other drugs can be harmful, especially if taken in excess. Always consult your doctor before starting new medications.\n\n5. **Stay Hydrated**: Drinking enough water is important for kidney function. It helps your kidneys filter waste from your blood. However, if you have existing kidney issues, you should discuss your fluid intake with your healthcare provider.\n\n6. **Seek Professional Guidance**: If you're identified as being at risk for CKD, consider working with your healthcare provider to develop a personalized management plan. This may include monitoring your kidney function and addressing any complications early.\n\nBy taking these steps, you can help reduce your risk of developing kidney disease and its associated complications, such as cardiovascular issues. Always remember to consult your healthcare provider for tailored advice and support.",
+    "coherence": {
+      "score": 5,
+      "verdict": "The advice is coherent and appropriately addresses the patient's risk of kidney disease with specific and actionable recommendations.",
+      "issues": ""
+    }
+  }
+]

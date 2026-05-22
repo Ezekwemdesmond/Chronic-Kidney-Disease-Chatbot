@@ -33,6 +33,7 @@
 - [Tech Stack](#tech-stack)
 - [ML Model Performance](#ml-model-performance)
 - [RAG Pipeline](#rag-pipeline)
+- [Evaluation](#evaluation)
 - [Project Structure](#project-structure)
 - [Quickstart](#quickstart)
   - [Docker (Recommended)](#option-1-docker-recommended)
@@ -204,6 +205,20 @@ Random Forest Classifier
 ~98% Test Accuracy
 ```
 
+### Measured Performance (evaluate_ml.py)
+
+| Metric | Test Set (n=80) | 5-Fold CV (n=400) |
+|---|---|---|
+| **Accuracy** | **98.75%** | 98.00% ± 1.70% |
+| **Precision** | **98.11%** | 98.03% ± 1.75% |
+| **Recall (Sensitivity)** | **100.00%** | 98.80% ± 0.98% |
+| **F1-Score** | **99.05%** | 98.41% ± 1.34% |
+| **ROC-AUC** | **1.0000** | 0.9987 ± 0.0012 |
+
+> The model achieves perfect recall on the test set — it does not miss a single true CKD case — which is the clinically critical direction for a screening tool.
+
+Evaluation plots saved to `reports/`: confusion matrix, ROC curve, SHAP feature importance bar chart, and SHAP beeswarm summary.
+
 ### Selected Clinical Features
 
 | Category | Biomarkers |
@@ -235,32 +250,90 @@ The conversational assistant is powered by a LangChain-based RAG pipeline that g
 ```
 User Query
     │
-    ▼
-all-MiniLM-L6-v2 Encoder (384-dim)
-    │
-    ▼
-Pinecone Serverless Index (cosine similarity)
-  → Top-3 most relevant 500-character chunks
-    │
-    ▼
-LangChain RetrievalChain
-    │
-    ▼
-OpenAI GPT (temp=0.4, max_tokens=500)
-  System Persona: "KidneyCareAI — friendly, knowledgeable medical assistant"
-  • Grounds claims in retrieved documents
-  • Signals source usage via [SOURCES_USED] / [NO_SOURCES] tags
-  • Distinguishes medical information from medical advice
-    │
-    ▼
-Source Detection & Extraction
-  • [SOURCES_USED] tag triggers metadata extraction from retrieved chunks
-  • Filename, page number, and content preview collected per source
-  • Duplicates deduplicated; page numbers converted to 1-indexed
-    │
-    ▼
-Response → User  (answer text + source pill tags)
+    ├─────────────────────────────────────────┐
+    ▼                                         ▼
+all-MiniLM-L6-v2 Encoder (384-dim)       BM25 Keyword Search
+    │                                         │
+    ▼                                         │
+Pinecone Serverless Index                     │
+  (cosine similarity, Top-k×3 chunks)         │
+    │                                         │
+    └──────────────┬──────────────────────────┘
+                   ▼
+        Reciprocal Rank Fusion (RRF)
+          β=0.5  |  Top-5 chunks
+                   │
+                   ▼
+        OpenAI GPT-4o-mini (temp=0.4, max_tokens=500)
+          System Persona: "KidneyCareAI — friendly, knowledgeable medical assistant"
+          • Grounds claims in retrieved documents
+          • Signals source usage via [SOURCES_USED] / [NO_SOURCES] tags
+          • Distinguishes medical information from medical advice
+                   │
+                   ▼
+        Source Detection & Extraction
+          • [SOURCES_USED] tag triggers metadata extraction from retrieved chunks
+          • Filename, page number, and content preview collected per source
+          • Duplicates deduplicated; page numbers converted to 1-indexed
+                   │
+                   ▼
+        Response → User  (answer text + source pill tags)
 ```
+
+The **HybridRetriever** (`src/hybridsearch.py`) combines dense vector search (Pinecone) and sparse keyword search (BM25) via Reciprocal Rank Fusion, improving recall for queries that use precise clinical terminology not well-served by embedding similarity alone.
+
+---
+
+## Evaluation
+
+The project ships three standalone evaluation scripts that measure quality at every layer of the stack.
+
+### 1. ML Classifier — `evaluate_ml.py`
+
+Evaluates the Random Forest model on the held-out test set and via 5-fold stratified cross-validation. Generates four diagnostic plots saved to `reports/`.
+
+```bash
+python evaluate_ml.py
+```
+
+### 2. RAG Pipeline — `evaluate_rag.py` (RAGAS)
+
+Measures retrieval and generation quality across 20 curated questions (15 medical, 5 conversational) using four [RAGAS](https://docs.ragas.io/) metrics. Medical questions are scored on all four metrics; conversational questions on Answer Relevancy only.
+
+```bash
+python evaluate_rag.py                  # Full run (20 questions)
+python evaluate_rag.py --sample 5       # Quick smoke-test
+python evaluate_rag.py --top-k 8        # More retrieved chunks
+```
+
+| Metric | Medical Questions (n=15) |
+|---|---|
+| Context Precision | 0.571 |
+| Context Recall | 0.568 |
+| **Faithfulness** | **0.767** |
+| **Answer Relevancy** | **0.818** |
+
+Conversational Answer Relevancy: **0.373** — the chatbot tends to answer off-topic queries with medical content rather than cleanly redirecting, which is an identified improvement area.
+
+### 3. End-to-End Coherence — `evaluate_e2e.py`
+
+Runs 6 synthetic patient profiles (3 CKD, 3 non-CKD) through the full stack — biomarkers → Random Forest → RAG advice — and uses GPT-4o-mini as a judge to score whether the advice is coherent with the ML prediction (1–5 scale).
+
+```bash
+python evaluate_e2e.py
+python evaluate_e2e.py --verbose    # Show RAG pipeline logs
+```
+
+| Metric | Result |
+|---|---|
+| ML Prediction Accuracy | **5 / 6 (83%)** |
+| Avg Coherence Score (GPT-4o-mini judge) | **5.0 / 5** |
+| CKD profiles coherence | 5.0 / 5 |
+| Non-CKD profiles coherence | 5.0 / 5 |
+
+The one misclassification was a borderline non-CKD profile (older adult, controlled diabetes, creatinine 1.0) that the model conservatively flagged as likely — a reasonable false positive for a screening tool. Despite the wrong prediction, the RAG advice was still rated fully coherent since it matched the output label.
+
+Results are saved to `data/eval_rag_results_raw.json` and `data/eval_e2e_results.json`.
 
 ---
 
@@ -270,6 +343,9 @@ Response → User  (answer text + source pill tags)
 Chronic-Kidney-Disease-Chatbot/
 │
 ├── app.py                          # Flask app entry point & CKDChatbotCore orchestrator
+├── evaluate_ml.py                  # RF classifier metrics + SHAP plots → reports/
+├── evaluate_rag.py                 # RAGAS evaluation of hybrid RAG pipeline (20 questions)
+├── evaluate_e2e.py                 # End-to-end coherence eval (6 synthetic patient profiles)
 ├── pyproject.toml                  # Project metadata & dependency declarations
 ├── requirements.txt                # Fully resolved dependency lockfile
 ├── Dockerfile                      # Container build instructions
@@ -280,16 +356,26 @@ Chronic-Kidney-Disease-Chatbot/
 │   ├── ml_model.py                 # Random Forest pipeline: train, impute, encode, predict
 │   ├── document_processing.py      # PDF loading, text chunking, embedding generation
 │   ├── vectorstore.py              # Pinecone index management & LangChain retriever
-│   └── rag_pipeline.py             # LangChain RAG chain & OpenAI LLM integration
+│   ├── hybridsearch.py             # HybridRetriever: BM25 + Pinecone + RRF fusion
+│   └── rag_pipeline.py             # OpenAI chat completions RAG with source tagging
 │
 ├── data/
 │   ├── kidney_disease.csv          # UCI CKD dataset (398 records)
 │   ├── kidney_disease_rf_model.pkl # Serialized Random Forest model artifact
 │   ├── encoders.pkl                # Fitted categorical label encoders
+│   ├── test_dataset.json           # 20 curated Q&A pairs for RAGAS evaluation
+│   ├── eval_rag_results_raw.json   # Raw RAG query results (generated by evaluate_rag.py)
+│   ├── eval_e2e_results.json       # E2E profile scores (generated by evaluate_e2e.py)
 │   ├── Bookshelf_NBK51773.pdf      # NIH kidney disease reference
 │   ├── Brenner_and_Rectors_*.pdf   # Nephrology textbook (~18MB)
 │   ├── ESPEN-guideline_*.pdf       # Clinical nutrition guidelines
 │   └── KDIGO_2012_CKD_GL.pdf       # KDIGO clinical practice guidelines
+│
+├── reports/                        # Generated by evaluate_ml.py
+│   ├── confusion_matrix.png        # Confusion matrix on held-out test set
+│   ├── roc_curve.png               # ROC curve (AUC = 1.000)
+│   ├── shap_importance.png         # Mean |SHAP| feature importance bar chart
+│   └── shap_beeswarm.png           # SHAP beeswarm summary plot
 │
 ├── templates/
 │   ├── index.html                  # Chat interface
@@ -299,7 +385,7 @@ Chronic-Kidney-Disease-Chatbot/
 └── static/
     ├── scripts/index.js            # Async chat, typing indicator, message rendering
     ├── styles/
-    │   ├── index.css               # Chat UI styles
+    │   ├── index.css               # Chat UI styles (includes source pill styles)
     │   ├── form.css                # Health form styles
     │   └── result.css              # Results page styles
     └── images/bot-icon.png         # KidneyCareAI avatar
@@ -420,11 +506,14 @@ This project uses the **UCI Chronic Kidney Disease Dataset**.
 ## Roadmap
 
 - [x] **Source Citations** — Display retrieved document name and page number as pill tags below each medical response
-- [ ] **SHAP Explainability** — Add feature importance visualizations to the results page so users understand which biomarkers drove the prediction
+- [x] **Hybrid RAG Retrieval** — BM25 keyword search fused with Pinecone dense retrieval via Reciprocal Rank Fusion (β=0.5, Top-5 chunks)
+- [x] **Evaluation Suite** — Three evaluation scripts covering ML metrics + SHAP, RAGAS (4 metrics, 20 questions), and end-to-end coherence (6 synthetic profiles, GPT-4o-mini judge)
+- [ ] **SHAP Explainability UI** — Expose SHAP feature importance on the results page so users see which biomarkers drove the prediction
 - [ ] **CKD Stage Prediction** — Extend the classifier from binary to multi-class (Stages 1–5 + ESRD)
+- [ ] **Conversational Redirect** — Improve chatbot handling of off-topic and conversational queries (current Answer Relevancy: 0.37) with a dedicated intent classifier
+- [ ] **Context Precision Improvements** — Address the 0.57 Context Precision score by experimenting with re-ranking (cross-encoder) and finer chunk sizing
 - [ ] **Patient History** — Persist conversation and prediction history per session for longitudinal tracking
 - [ ] **Authentication** — Add user accounts for secure, private health data management
-- [ ] **Finer RAG Tuning** — Experiment with hybrid BM25 + dense retrieval and re-ranking for improved answer quality
 - [ ] **CI/CD Pipeline** — GitHub Actions workflow for automated testing and Cloud Run deployment
 
 ---

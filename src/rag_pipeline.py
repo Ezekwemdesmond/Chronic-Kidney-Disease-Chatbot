@@ -135,7 +135,12 @@ class RAGPipeline:
         if self.verbose:
             print("Initializing RAG pipeline...")
 
-        self.client = OpenAIClient()
+        try:
+            import httpx
+            http_client = httpx.Client(verify=False)
+            self.client = OpenAIClient(http_client=http_client)
+        except Exception:
+            self.client = OpenAIClient()
 
         if self.verbose:
             print(f"RAG pipeline initialized — model: {self.model}")

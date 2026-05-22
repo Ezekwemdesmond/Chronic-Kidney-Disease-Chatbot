@@ -36,8 +36,7 @@ class PineconeStore:
         if self.verbose:
             print(f"Initializing Pinecone index: {self.index_name}")
 
-        # Initialize Pinecone
-        self.pc = Pinecone(api_key=self.api_key)
+        self.pc = Pinecone(api_key=self.api_key, ssl_verify=False)
 
         # List all indexes
         active_indexes = self.pc.list_indexes().names()

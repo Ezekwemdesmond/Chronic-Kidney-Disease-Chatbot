@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "category": "factual_medical",
+    "question": "What are the five stages of chronic kidney disease based on GFR?",
+    "ground_truth": "Chronic kidney disease is classified into five stages based on glomerular filtration rate (GFR). Stage 1 has a GFR of 90 or above with signs of kidney damage. Stage 2 has a GFR of 60 to 89 with mild reduction. Stage 3 is split into 3a (GFR 45-59) and 3b (GFR 30-44) with moderate reduction. Stage 4 has a GFR of 15 to 29, indicating severe reduction. Stage 5, also called kidney failure or end-stage renal disease, has a GFR below 15 and typically requires dialysis or transplantation."
+  },
+  {
+    "id": 2,
+    "category": "factual_medical",
+    "question": "How does KDIGO define chronic kidney disease?",
+    "ground_truth": "According to KDIGO guidelines, chronic kidney disease is defined as abnormalities of kidney structure or function present for more than three months, with implications for health. The diagnosis requires either markers of kidney damage such as albuminuria, abnormal urine sediment, electrolyte disorders, abnormal histology, or structural abnormalities detected by imaging, or a GFR below 60 mL/min/1.73m2 for more than three months."
+  },
+  {
+    "id": 3,
+    "category": "factual_medical",
+    "question": "What is the role of albuminuria in CKD staging and prognosis?",
+    "ground_truth": "Albuminuria is a key marker in CKD staging and prognosis. KDIGO classifies albuminuria into three categories: A1 (normal to mildly increased, less than 30 mg/g), A2 (moderately increased, 30-300 mg/g), and A3 (severely increased, above 300 mg/g). Higher albuminuria is associated with faster CKD progression, increased cardiovascular risk, and higher mortality. Combined GFR and albuminuria categories are used to determine overall CKD risk and guide management decisions."
+  },
+  {
+    "id": 4,
+    "category": "factual_medical",
+    "question": "What are the most common causes of chronic kidney disease?",
+    "ground_truth": "The most common causes of chronic kidney disease are diabetes mellitus and hypertension, which together account for the majority of CKD cases globally. Diabetic nephropathy develops from prolonged high blood glucose damaging kidney filtration units. Hypertensive nephrosclerosis results from sustained high blood pressure damaging small blood vessels in the kidneys. Other causes include glomerulonephritis, polycystic kidney disease, recurrent kidney infections, obstructive uropathy, and certain medications or toxins that damage kidney tissue."
+  },
+  {
+    "id": 5,
+    "category": "factual_medical",
+    "question": "What is eGFR and how is it used to monitor kidney function?",
+    "ground_truth": "Estimated glomerular filtration rate (eGFR) is a calculated measure of how well the kidneys filter waste from the blood, expressed in mL/min/1.73m2 of body surface area. It is estimated from serum creatinine levels along with age, sex, and sometimes race using equations such as CKD-EPI. eGFR is used to stage CKD, monitor disease progression over time, adjust medication doses, and determine when to refer patients to nephrology or prepare for renal replacement therapy. A sustained eGFR below 60 for more than three months confirms CKD."
+  },
+  {
+    "id": 6,
+    "category": "dietary_management",
+    "question": "What protein intake is recommended for CKD patients not on dialysis?",
+    "ground_truth": "For CKD patients not on dialysis, KDIGO and ESPEN guidelines recommend a low protein diet of 0.6 to 0.8 grams per kilogram of body weight per day in adults with GFR below 30 to slow disease progression. Some guidelines allow up to 0.8 g/kg/day for patients without diabetes. Protein restriction should be approached cautiously to avoid malnutrition, and patients should be monitored for nutritional status. A very low protein diet of 0.3-0.4 g/kg/day supplemented with keto-analogues may be considered for highly motivated patients with advanced CKD."
+  },
+  {
+    "id": 7,
+    "category": "dietary_management",
+    "question": "Why should CKD patients limit potassium intake, and which foods are high in potassium?",
+    "ground_truth": "CKD patients should limit potassium intake because failing kidneys cannot adequately excrete potassium, leading to hyperkalemia — elevated blood potassium levels. Hyperkalemia is dangerous and can cause life-threatening cardiac arrhythmias. Dietary potassium restriction is typically recommended when serum potassium rises above 5.0 to 5.5 mmol/L. High potassium foods to limit include bananas, oranges, potatoes, tomatoes, avocados, dried fruits, nuts, dairy products, and legumes. Cooking vegetables by boiling and discarding the water can reduce their potassium content."
+  },
+  {
+    "id": 8,
+    "category": "dietary_management",
+    "question": "What sodium intake is recommended for CKD patients and why?",
+    "ground_truth": "CKD patients are generally advised to limit sodium intake to less than 2 grams per day (equivalent to 5 grams of salt) to help control blood pressure, reduce proteinuria, and slow kidney disease progression. Excess sodium causes fluid retention, which raises blood pressure and increases the workload on already impaired kidneys. High sodium foods to avoid include processed foods, canned soups, deli meats, fast food, salty snacks, and condiments. Sodium restriction also helps reduce the risk of cardiovascular complications, which are a leading cause of death in CKD patients."
+  },
+  {
+    "id": 9,
+    "category": "dietary_management",
+    "question": "How does phosphorus affect CKD patients and how should it be managed?",
+    "ground_truth": "In CKD, the kidneys lose their ability to excrete phosphorus, leading to hyperphosphatemia — elevated blood phosphorus levels. High phosphorus triggers secondary hyperparathyroidism, causes renal osteodystrophy (weakened bones), and promotes cardiovascular calcification, increasing mortality risk. Management includes dietary phosphorus restriction to 800-1000 mg per day, limiting high-phosphorus foods such as dairy products, nuts, cola drinks, processed foods, and whole grains. Phosphate binders taken with meals may also be prescribed to reduce intestinal absorption of phosphorus."
+  },
+  {
+    "id": 10,
+    "category": "dietary_management",
+    "question": "What are the fluid intake recommendations for CKD patients?",
+    "ground_truth": "Fluid intake recommendations in CKD depend on the stage and whether the patient is on dialysis. In early CKD stages without significant fluid retention or hypertension, fluid intake is generally not restricted and adequate hydration is encouraged. In advanced CKD and in patients on dialysis, fluid is often restricted to prevent fluid overload, hypertension, and pulmonary edema. Dialysis patients are typically advised to limit fluid intake to their urine output plus 500-750 mL per day. Signs of fluid overload include swelling in the legs and ankles, shortness of breath, and weight gain."
+  },
+  {
+    "id": 11,
+    "category": "symptoms_diagnosis",
+    "question": "What are the early warning signs and symptoms of chronic kidney disease?",
+    "ground_truth": "Early chronic kidney disease often has no symptoms, which is why it is frequently undiagnosed until advanced stages. As CKD progresses, symptoms may include fatigue and weakness due to anemia, swelling in the legs, ankles, or feet from fluid retention, changes in urination patterns such as increased frequency at night, foamy or bubbly urine indicating protein loss, high blood pressure that is difficult to control, decreased appetite, nausea, itching due to uremia, muscle cramps, and difficulty concentrating. Regular screening of at-risk patients with blood and urine tests is essential for early detection."
+  },
+  {
+    "id": 12,
+    "category": "symptoms_diagnosis",
+    "question": "What blood tests and urine tests are used to diagnose and monitor CKD?",
+    "ground_truth": "CKD diagnosis and monitoring involves several laboratory tests. Blood tests include serum creatinine to calculate eGFR, blood urea nitrogen (BUN), electrolytes such as potassium, sodium, bicarbonate, complete blood count to detect anemia, parathyroid hormone (PTH) for bone disease assessment, and phosphorus and calcium levels. Urine tests include urinalysis to detect blood, protein, or infection, urine albumin-to-creatinine ratio (UACR) to quantify proteinuria, and urine protein-to-creatinine ratio. Imaging studies such as kidney ultrasound may also be used to assess kidney size and structure."
+  },
+  {
+    "id": 13,
+    "category": "symptoms_diagnosis",
+    "question": "What is the difference between acute kidney injury and chronic kidney disease?",
+    "ground_truth": "Acute kidney injury (AKI) is a sudden, rapid decline in kidney function occurring over hours to days, often caused by dehydration, medications, infections, or obstruction. AKI is potentially reversible with prompt treatment. Chronic kidney disease (CKD) is a slow, progressive loss of kidney function over three or more months, usually caused by diabetes, hypertension, or structural kidney disease. CKD is generally irreversible and worsens over time. AKI can accelerate CKD progression, and repeated episodes of AKI can contribute to the development of CKD. Both conditions are identified by elevated creatinine and reduced GFR, but the time course distinguishes them."
+  },
+  {
+    "id": 14,
+    "category": "symptoms_diagnosis",
+    "question": "How does diabetes lead to kidney disease?",
+    "ground_truth": "Diabetes causes kidney disease, known as diabetic nephropathy, through prolonged exposure of kidney structures to high blood glucose levels. Chronically elevated glucose damages the glomerular basement membrane and mesangial cells, leading to increased permeability and loss of proteins into the urine. Early diabetic nephropathy is marked by microalbuminuria, which progresses to macroalbuminuria. Over time, glomerulosclerosis develops, reducing GFR. Hyperglycemia also activates inflammatory and fibrotic pathways that accelerate kidney damage. Good glycemic control, blood pressure management, and use of renin-angiotensin system blockers are key to slowing progression of diabetic nephropathy."
+  },
+  {
+    "id": 15,
+    "category": "symptoms_diagnosis",
+    "question": "What cardiovascular complications are associated with chronic kidney disease?",
+    "ground_truth": "Cardiovascular disease is the leading cause of death in CKD patients. CKD promotes cardiovascular complications through multiple mechanisms including hypertension, fluid overload, anemia, abnormal lipid levels, chronic inflammation, oxidative stress, and mineral bone disorder with vascular calcification. Patients with CKD have significantly higher rates of coronary artery disease, heart failure, stroke, left ventricular hypertrophy, and sudden cardiac death compared to the general population. The risk increases with declining kidney function and rising albuminuria. Management involves controlling blood pressure, optimizing lipid levels, treating anemia, and addressing CKD-MBD to reduce cardiovascular burden."
+  },
+  {
+    "id": 16,
+    "category": "conversational",
+    "question": "Hi, how are you doing today?",
+    "ground_truth": "A friendly greeting acknowledging the user and introducing the assistant as a kidney health resource."
+  },
+  {
+    "id": 17,
+    "category": "conversational",
+    "question": "Thank you for all the helpful information!",
+    "ground_truth": "A warm acknowledgement of the thanks and an offer to continue helping with kidney health questions."
+  },
+  {
+    "id": 18,
+    "category": "conversational",
+    "question": "What is the weather like in London today?",
+    "ground_truth": "A polite response acknowledging the question is outside the assistant's scope and redirecting to kidney health topics."
+  },
+  {
+    "id": 19,
+    "category": "conversational",
+    "question": "I am experiencing severe chest pain and shortness of breath right now.",
+    "ground_truth": "An urgent response directing the user to call emergency services (911 or local equivalent) immediately, without attempting to diagnose."
+  },
+  {
+    "id": 20,
+    "category": "conversational",
+    "question": "Can you recommend specific medications I should take for my CKD stage 3?",
+    "ground_truth": "A response explaining that specific medication recommendations require a doctor, while providing general information about medication types used in CKD management and recommending the user consult their nephrologist."
+  }
+]
